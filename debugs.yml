@@ -20,10 +20,6 @@
           - bash tar -cvzf /mnt/flash/tech-all.gz.tar /mnt/flash/schedule/tech-support/*
           - bash tar -C /mnt/flash -czvf /mnt/flash/{{ ansible_net_hostname }}-{{ t.stdout }}.tgz show-tech-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentlog-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentqt-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-logsys-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz tech-all.gz.tar
 
-    - name: debug
-      debug:
-        msg: "bash tar -C /mnt/flash -czvf {{ ansible_net_hostname }}-{{ t.stdout }}.tgz show-tech-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentlog-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentqt-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-logsys-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz tech-all.gz.tar"
-
     - name: download switch debug
       ansible.netcommon.net_get:
         src: "/mnt/flash/{{ ansible_net_hostname }}-{{ t.stdout }}.tgz"
