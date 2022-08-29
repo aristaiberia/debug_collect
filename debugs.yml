@@ -1,0 +1,31 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: get local control_node time stamp
+      shell: "date +%Y%m%d_%H%M%S"
+      delegate_to: localhost
+      register: t
+
+    - name: gather eos facts
+      arista.eos.eos_facts:
+
+    - name: get switch debug info
+      eos_command:
+        commands:
+          - show tech-support | gzip > /mnt/flash/show-tech-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz
+          - show agent log | gzip > /mnt/flash/show-agentlog-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz
+          - show agent qtrace | gzip > /mnt/flash/show-agentqt-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz
+          - show logging system | gzip > /mnt/flash/show-logsys-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz
+          - bash tar -cvzf /mnt/flash/tech-all.gz.tar /mnt/flash/schedule/tech-support/*
+          - bash tar -C /mnt/flash -czvf /mnt/flash/{{ ansible_net_hostname }}-{{ t.stdout }}.tgz show-tech-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentlog-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentqt-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-logsys-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz tech-all.gz.tar
+
+    - name: debug
+      debug:
+        msg: "bash tar -C /mnt/flash -czvf {{ ansible_net_hostname }}-{{ t.stdout }}.tgz show-tech-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentlog-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-agentqt-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz show-logsys-{{ ansible_net_hostname }}-{{ t.stdout }}.log.gz tech-all.gz.tar"
+
+    - name: download switch debug
+      ansible.netcommon.net_get:
+        src: "/mnt/flash/{{ ansible_net_hostname }}-{{ t.stdout }}.tgz"
+        dest: "downloads/{{ ansible_net_hostname }}-{{ t.stdout }}.tgz"
+
